@@ -1,27 +1,30 @@
-import {
-    sounds
-} from './sounds.js';
+import { sounds } from './sounds.js';
+
 let allowOverlap = false;
 let showFavorites = false;
 let currentAudios = [];
+
 const toggleButton = document.getElementById('toggleButton');
 const stopButton = document.getElementById('stopButton');
 const searchInput = document.getElementById('searchInput');
-const favoriteButton = document.getElementById('toggleFavorites')
+const favoriteButton = document.getElementById('toggleFavorites');
 const soundBoard = document.getElementById('soundboard');
+
 toggleButton.onclick = () => {
     allowOverlap = !allowOverlap;
     toggleButton.textContent = allowOverlap ? '🔊 Overlap: ON' : '🔇 Overlap: OFF';
 };
+
 stopButton.onclick = () => {
     currentAudios.forEach(a => a.pause());
     currentAudios = [];
 };
+
 favoriteButton.onclick = () => {
     showFavorites = !showFavorites;
     favoriteButton.textContent = showFavorites ? '🌟 Favorites: ON' : '⭐ Favorites: OFF';
-    renderSounds(showFavorites ? "filter:favorite "+searchInput.value : searchInput.value);
-}
+    renderSounds(showFavorites ? "filter:favorite " + searchInput.value : searchInput.value);
+};
 
 function renderSounds(filter = '') {
     soundBoard.innerHTML = '';
@@ -32,29 +35,38 @@ function renderSounds(filter = '') {
     } else {
         finalSound = sounds.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
     }
+
     finalSound.forEach(sound => {
         const wrapper = document.createElement('div');
         wrapper.className = 'sound-wrapper';
         const button = document.createElement('button');
+
         wrapper.addEventListener("contextmenu", (e) => {
             rightClickPanel(e, wrapper, sound);
-        });        
+        });
+
         button.className = 'sound-button-img';
         button.style.setProperty('--btn-color', sound.color);
         const image = document.createElement('div');
         image.className = 'sound-image';
         button.appendChild(image);
+
         button.onclick = () => {
             if (!allowOverlap) {
                 currentAudios.forEach(a => a.pause());
                 currentAudios = [];
             }
-            const audio = new Audio("https://cdn.jsdelivr.net/gh/genizy/soundboard@main/"+sound.mp3);
+            
+            // FIXED: Removed hardcoded jsdelivr URL with @main
+            // Browser will now use the <base> tag from HTML
+            const audio = new Audio(sound.mp3);
             audio.play();
             currentAudios.push(audio);
+            
             image.classList.add('pressed');
             setTimeout(() => image.classList.remove('pressed'), 150);
         };
+
         const label = document.createElement('div');
         label.className = 'sound-label';
         label.textContent = sound.name;
@@ -63,9 +75,11 @@ function renderSounds(filter = '') {
         soundBoard.appendChild(wrapper);
     });
 }
+
 renderSounds();
+
 searchInput.addEventListener('input', () => {
-    renderSounds((showFavorites? "filter:favorite ": "")+searchInput.value);
+    renderSounds((showFavorites ? "filter:favorite " : "") + searchInput.value);
 });
 
 function rightClickPanel(event, button, sound) {
@@ -78,7 +92,6 @@ function rightClickPanel(event, button, sound) {
     panel.style.left = `${event.pageX}px`;
     panel.style.top = `${event.pageY}px`;
 
-    // favorite button
     let favoriteJson = localStorage.getItem('favorites') ? JSON.parse(localStorage.getItem('favorites')) : [];
     const favorite = document.createElement('button');
     favorite.className = 'right-click-panel-button';
@@ -90,7 +103,7 @@ function rightClickPanel(event, button, sound) {
         if (isFavorite) {
             favoriteJson = favoriteJson.filter(item => item.name !== sound.name);
             if (showFavorites) {
-                renderSounds("filter:favorite "+searchInput.value);
+                renderSounds("filter:favorite " + searchInput.value);
             }
         } else {
             favoriteJson.push(sound);
@@ -98,14 +111,14 @@ function rightClickPanel(event, button, sound) {
         localStorage.setItem("favorites", JSON.stringify(favoriteJson));
         panel.remove();
     };
-    
-    // download button
+
     const download = document.createElement('button');
     download.className = 'right-click-panel-button';
     download.textContent = '💾 Download';
-    
+
     download.onclick = () => {
         const link = document.createElement('a');
+        // FIXED: Ensure download also respects the relative path/base tag
         link.href = sound.mp3;
         link.download = sound.mp3.split("/").pop();
         document.body.appendChild(link);
@@ -130,27 +143,26 @@ function rightClickPanel(event, button, sound) {
     }, 0);
 }
 
-// tts
-
-const ttsToggle     = document.getElementById('ttsToggle');
-const ttsPanel      = document.getElementById('ttsPanel');
-const ttsClose      = document.getElementById('ttsClose');
-const ttsText       = document.getElementById('ttsText');
-const ttsVoice      = document.getElementById('ttsVoice');
+// TTS Logic
+const ttsToggle = document.getElementById('ttsToggle');
+const ttsPanel = document.getElementById('ttsPanel');
+const ttsClose = document.getElementById('ttsClose');
+const ttsText = document.getElementById('ttsText');
+const ttsVoice = document.getElementById('ttsVoice');
 const ttsLangFilter = document.getElementById('ttsLangFilter');
-const ttsVolume     = document.getElementById('ttsVolume');
-const ttsRate       = document.getElementById('ttsRate');
-const ttsPitch      = document.getElementById('ttsPitch');
-const ttsVolumeVal  = document.getElementById('ttsVolumeVal');
-const ttsRateVal    = document.getElementById('ttsRateVal');
-const ttsPitchVal   = document.getElementById('ttsPitchVal');
-const ttsSpeak      = document.getElementById('ttsSpeak');
-const ttsPauseBtn   = document.getElementById('ttsPause');
-const ttsResumeBtn  = document.getElementById('ttsResume');
-const ttsStopBtn    = document.getElementById('ttsStop');
-const ttsResetBtn   = document.getElementById('ttsReset');
-const ttsStatus     = document.getElementById('ttsStatus');
-const ttsSpeaking   = document.getElementById('ttsSpeaking');
+const ttsVolume = document.getElementById('ttsVolume');
+const ttsRate = document.getElementById('ttsRate');
+const ttsPitch = document.getElementById('ttsPitch');
+const ttsVolumeVal = document.getElementById('ttsVolumeVal');
+const ttsRateVal = document.getElementById('ttsRateVal');
+const ttsPitchVal = document.getElementById('ttsPitchVal');
+const ttsSpeak = document.getElementById('ttsSpeak');
+const ttsPauseBtn = document.getElementById('ttsPause');
+const ttsResumeBtn = document.getElementById('ttsResume');
+const ttsStopBtn = document.getElementById('ttsStop');
+const ttsResetBtn = document.getElementById('ttsReset');
+const ttsStatus = document.getElementById('ttsStatus');
+const ttsSpeaking = document.getElementById('ttsSpeaking');
 const ttsCurrentWord = document.getElementById('ttsCurrentWord');
 
 const synth = window.speechSynthesis;
@@ -202,7 +214,7 @@ function populateVoiceList(langFilter) {
 
 function getSelectedVoice() {
     const langFilter = ttsLangFilter.value;
-    const filtered   = langFilter ? allVoices.filter(v => v.lang === langFilter) : allVoices;
+    const filtered = langFilter ? allVoices.filter(v => v.lang === langFilter) : allVoices;
     return filtered[ttsVoice.selectedIndex] || null;
 }
 
@@ -216,8 +228,8 @@ ttsLangFilter.addEventListener('change', () => {
 });
 
 ttsVolume.addEventListener('input', () => { ttsVolumeVal.textContent = parseFloat(ttsVolume.value).toFixed(2); });
-ttsRate.addEventListener('input',   () => { ttsRateVal.textContent   = parseFloat(ttsRate.value).toFixed(1); });
-ttsPitch.addEventListener('input',  () => { ttsPitchVal.textContent  = parseFloat(ttsPitch.value).toFixed(2); });
+ttsRate.addEventListener('input', () => { ttsRateVal.textContent = parseFloat(ttsRate.value).toFixed(1); });
+ttsPitch.addEventListener('input', () => { ttsPitchVal.textContent = parseFloat(ttsPitch.value).toFixed(2); });
 
 ttsSpeak.onclick = () => {
     const text = ttsText.value.trim();
@@ -228,10 +240,10 @@ ttsSpeak.onclick = () => {
     synth.cancel();
 
     currentUtterance = new SpeechSynthesisUtterance(text);
-    currentUtterance.voice  = getSelectedVoice();
+    currentUtterance.voice = getSelectedVoice();
     currentUtterance.volume = parseFloat(ttsVolume.value);
-    currentUtterance.rate   = parseFloat(ttsRate.value);
-    currentUtterance.pitch  = parseFloat(ttsPitch.value);
+    currentUtterance.rate = parseFloat(ttsRate.value);
+    currentUtterance.pitch = parseFloat(ttsPitch.value);
 
     currentUtterance.onstart = () => {
         setStatus('🔊 Speaking…', 'speaking');
@@ -244,7 +256,7 @@ ttsSpeak.onclick = () => {
             const word = text.substr(e.charIndex, e.charLength);
             ttsCurrentWord.textContent = word;
             ttsCurrentWord.classList.remove('word-pop');
-            void ttsCurrentWord.offsetWidth; // reflow
+            void ttsCurrentWord.offsetWidth;
             ttsCurrentWord.classList.add('word-pop');
         }
     };
@@ -275,13 +287,13 @@ ttsSpeak.onclick = () => {
 
 ttsPauseBtn.onclick = () => {
     if (synth.speaking && !synth.paused) synth.pause();
-    ttsPauseBtn.disabled  = true;
+    ttsPauseBtn.disabled = true;
     ttsResumeBtn.disabled = false;
 };
 
 ttsResumeBtn.onclick = () => {
     if (synth.paused) synth.resume();
-    ttsPauseBtn.disabled  = false;
+    ttsPauseBtn.disabled = false;
     ttsResumeBtn.disabled = true;
 };
 
@@ -294,23 +306,22 @@ ttsStopBtn.onclick = () => {
 };
 
 ttsResetBtn.onclick = () => {
-    ttsVolume.value = 1;   ttsVolumeVal.textContent = '1.00';
-    ttsRate.value   = 1;   ttsRateVal.textContent   = '1.0';
-    ttsPitch.value  = 1;   ttsPitchVal.textContent  = '1.00';
+    ttsVolume.value = 1; ttsVolumeVal.textContent = '1.00';
+    ttsRate.value = 1; ttsRateVal.textContent = '1.0';
+    ttsPitch.value = 1; ttsPitchVal.textContent = '1.00';
     ttsLangFilter.value = '';
     populateVoiceList('');
     setStatus('↺ Settings reset', 'idle');
 };
 
 function setBtns(active) {
-    ttsSpeak.disabled     =  active;
-    ttsPauseBtn.disabled  = !active;
-    ttsStopBtn.disabled   = !active;
+    ttsSpeak.disabled = active;
+    ttsPauseBtn.disabled = !active;
+    ttsStopBtn.disabled = !active;
     ttsResumeBtn.disabled = true;
 }
 
 function setStatus(msg, state) {
     ttsStatus.textContent = msg;
     ttsStatus.className = `tts-status tts-status--${state}`;
-
 }
