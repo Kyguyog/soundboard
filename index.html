@@ -2,8 +2,11 @@
 <html lang="en">
 
 <head>
+    <!-- Use the base URL without @main to avoid the redirect loop -->
     <base href="https://cdn.jsdelivr.net/gh/genizy/soundboard/">
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5521219086088837" crossorigin="anonymous"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WX5VS54ZDW"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() {
@@ -14,12 +17,14 @@
     </script>
     
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soundboard</title>
     
-    <script src="sounds.js?v=1.1" type="module"></script>
-    <script src="main.js?v=1.1" type="module"></script>
+    <!-- Versioning ensures jsDelivr fetches your LATEST pushed code -->
+    <script src="sounds.js?v=1.2" type="module"></script>
+    <script src="main.js?v=1.2" type="module"></script>
     
-    <link href="style.css" rel="stylesheet">
+    <link href="style.css?v=1.2" rel="stylesheet">
 </head>
 
 <body>
@@ -30,6 +35,7 @@
         <input id="searchInput" type="text" placeholder="Search sounds...">
         <button id="ttsToggle" class="control-button tts-toggle">🗣️ Text-to-Speech</button>
     </div>
+
     <div id="ttsPanel" class="tts-panel hidden">
         <div class="tts-panel-header">
             <span class="tts-title">🎙️ Text-to-Speech</span>
@@ -57,7 +63,6 @@
                 <label class="tts-label">Filter by Lang</label>
                 <select id="ttsLangFilter" class="tts-select"></select>
             </div>
-
         </div>
         
         <div id="ttsStatus" class="tts-status">Ready</div>
